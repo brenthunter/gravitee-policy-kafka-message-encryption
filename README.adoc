@@ -68,7 +68,7 @@ This policy is used to encrypt native Kafka messages as they are published into 
 
 .^|algorithm
 ^.^|X
-|Specify the algorithm to use for encryption. [AES128_GCM|AES192_GCM|AES256_GCM] (Supports EL)
+|Specify the algorithm to use for encryption. [AES128_GCM,AES192_GCM,AES256_GCM] (Supports EL)
 ^.^|-
 
 |===
