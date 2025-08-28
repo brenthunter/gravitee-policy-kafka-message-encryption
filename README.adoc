@@ -2,7 +2,7 @@
 
 == Description
 
-This policy is used to encrypt native Kafka messsages as they are published into Kafka.  The same policy is also used to decrypt when messages are being consumed from Kafka.  This policy supports both messasge-level and field-level encryption.
+This policy is used to encrypt native Kafka messages as they are published into Kafka.  The same policy is also used to decrypt when messages are being consumed from Kafka.  This policy supports both messasge-level and field-level encryption.
 
 == Policy Capabilities
 
@@ -38,17 +38,37 @@ This policy is used to encrypt native Kafka messsages as they are published into
 
 .^|certificatePemPublicKey
 ^.^|X
-|Specify your Public Key for encryption. (Supports EL)
+|Specify your Public Key for encryption. (Supports EL and Secrets)
 ^.^|-
 
 .^|certificatePemPrivateKey
 ^.^|X
-|Specify your Private Key for decryption. (Supports EL)
+|Specify your Private Key for decryption. (Supports ELand Secrets)
 ^.^|-
 
-.^|listOfFieldsToEncrypt
+.^|messageOrFieldLevel
+^.^|X
+|[boolean] For meesage-level encryption, use "false".  For field-level encryption, use "true".
 ^.^|-
-|Add one or more message fields to encrypt. (Supports EL)
+
+.^|messageOrFieldLevel:fields
+^.^|-
+|[List] Only used when messageOrFieldLevel=true.  Add one or more message fields (using JSONPath) to encrypt/decrypt. (Supports EL)
+^.^|-
+
+.^|compressionConfiguration:compressionHeader
+^.^|-
+|Specify a Kafka message header to store the compression type used to compress the message/fields. Only required in the Publish phase.
+^.^|__GIO_KAFKA_MESSAGE_ENCRYPTION_POLICY_COMPRESSION_TYPE
+
+.^|compressionConfiguration:compressionType
+^.^|X
+|Specify the algorithm to use for encryption. [NONE,GZIP,DEFLATE]
+^.^|NONE
+
+.^|algorithm
+^.^|X
+|Specify the algorithm to use for encryption. [AES128_GCM|AES256_GCM|AES512_GCM] (Supports EL)
 ^.^|-
 
 |===
@@ -134,24 +154,24 @@ In this example scenario, let's create a certificate key/pair to encrypt and dec
 
 We first need to create a certificate, using openssl.
 
-1. Generate a 4096-bit RSA private key:
+Step 1: Generate a 4096-bit RSA private key:
 ```
 openssl genrsa -out private-key.pem 4096
 ```
 
-2. Extract the public key certificate (self-signed, valid for 1 year)
+Step 2: Extract the public key certificate (self-signed, valid for 1 year)
 ```
 openssl req -new -x509 -key private-key.pem -out public-cert.pem -days 365
 ```
-During this step, you’ll be prompted for certificate fields (Country, Org, CN, etc.). The resulting public-cert.pem is what you configure in the 'Certificate Public Key' in the Publish phase (for encryption), and private-key.pem is what you configure in 'Certificate Private Key' in the Subscribe phase (for decryption).
+During this step, you'll be prompted for certificate fields (Country, Org, CN, etc.). The resulting public-cert.pem is what you configure in the 'Certificate Public Key' in the Publish phase (for encryption), and private-key.pem is what you configure in 'Certificate Private Key' in the Subscribe phase (for decryption).
 
-3. Now we can add the Kafka Message Encryption Policy to your existing Native Kafka Protocol API in Gravitee.
+Step 3: Now we can add the Kafka Message Encryption Policy to your existing Native Kafka Protocol API in Gravitee.
 
 == Example - Encrypting the full Kafka message
 
-1. To encrypt the message, add the Kafka Message Encryption Policy to the Publish phase (of your Native Kafka Protocol API).  Select the 'Message-level' option, and input your Certificate Public Key. Optionally, select a Compression type to use.
+Step 1: To encrypt the message, add the Kafka Message Encryption Policy to the Publish phase (of your Native Kafka Protocol API).  Select the 'Message-level' option, and input your Certificate Public Key. Optionally, select a Compression type to use.
 
-2. To decrypt the message, add the Kafka Message Encryption Policy to the Subscribe phase (of your Native Kafka Protocol API).  Select the 'Message-level' option, and input your Certificate Private Key.  If you selected a Compression type, Gravitee will read this automatically from the 'Compression Header'.
+Step 2: To decrypt the message, add the Kafka Message Encryption Policy to the Subscribe phase (of your Native Kafka Protocol API).  Select the 'Message-level' option, and input your Certificate Private Key.  If you selected a Compression type, Gravitee will read this automatically from the 'Compression Header'.
 
 == Http Status Code
 
