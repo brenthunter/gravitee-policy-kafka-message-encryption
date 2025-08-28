@@ -68,7 +68,7 @@ This policy is used to encrypt native Kafka messages as they are published into 
 
 .^|algorithm
 ^.^|X
-|Specify the algorithm to use for encryption. [AES128_GCM|AES256_GCM|AES512_GCM] (Supports EL)
+|Specify the algorithm to use for encryption. [AES128_GCM|AES192_GCM|AES256_GCM] (Supports EL)
 ^.^|-
 
 |===
@@ -94,6 +94,18 @@ This policy is used to encrypt native Kafka messages as they are published into 
 ----
 
 [source, json]
+.Kafka Message Encryption Policy example (for decrypting the full message):
+----
+{
+  "policy": "kafka-message-encryption",
+  "configuration": {
+	"certificatePemPrivateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+  }
+}
+----
+
+
+[source, json]
 .Kafka Message Encryption Policy example (for encrypting specific fields of a message):
 ----
 {
@@ -113,17 +125,6 @@ This policy is used to encrypt native Kafka messages as they are published into 
 	  },
 	  "algorithm": "AES256_GCM"
 	}
-}
-----
-
-[source, json]
-.Kafka Message Encryption Policy example (for decrypting the full message):
-----
-{
-  "policy": "kafka-message-encryption",
-  "configuration": {
-	"certificatePemPrivateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-  }
 }
 ----
 
