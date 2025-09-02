@@ -8,7 +8,7 @@ This policy is used to encrypt native Kafka messages as they are published into 
 
 - **Message-level** encryption (encrypt the entire Kafka record value)
 - **Field-level** encryption (encrypt only specific JSON fields in the record value via JSONPath)
-- **Compression** applied before AES-GCM encryption, and decompressed after decryption
+- **Compression** applied before AES-GCM encryption, and decompressed after decryption. Control the threshold to ignore compression for small messages.
 - **Hybrid crypto (envelope encryption):** AES-256-GCM for content + RSA public/private key wrapping of the AES key (loaded from inline PEM cert/key) 
 - X.509 cert for encryption, PKCS#8 private key for decryption
 - Dynamically adapts to RSA key size (2048/3072/4096)
@@ -66,6 +66,11 @@ This policy is used to encrypt native Kafka messages as they are published into 
 |Specify the algorithm to use for encryption. [NONE,GZIP,DEFLATE]
 ^.^|NONE
 
+.^|compressionConfiguration:compressionThreshold
+^.^|X
+|Threshold to ignore small messages/fields (in bytes)
+^.^|1024
+
 .^|algorithm
 ^.^|X
 |Specify the algorithm to use for encryption. [AES128_GCM,AES192_GCM,AES256_GCM] (Supports EL)
@@ -86,7 +91,8 @@ This policy is used to encrypt native Kafka messages as they are published into 
 	  },
 	  "compressionConfiguration": {
 		"compressionHeader": "__GIO_KAFKA_MESSAGE_ENCRYPTION_POLICY_COMPRESSION_TYPE",
-		"compressionType": "GZIP"
+		"compressionType": "GZIP",
+		"compressionThreshold": "1024"
 	  },
 	  "algorithm": "AES256_GCM"
 	}
@@ -97,10 +103,16 @@ This policy is used to encrypt native Kafka messages as they are published into 
 .Kafka Message Encryption Policy example (for decrypting the full message):
 ----
 {
-  "policy": "kafka-message-encryption",
-  "configuration": {
-	"certificatePemPrivateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-  }
+	"policy": "kafka-message-encryption",
+	"configuration": {
+	  "certificatePemPrivateKey": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+	  "messageOrFieldLevel": {
+		"enabled": false
+	  },
+	  "compressionConfiguration": {
+		"compressionHeader": "__GIO_KAFKA_MESSAGE_ENCRYPTION_POLICY_COMPRESSION_TYPE"
+	  }
+	}
 }
 ----
 
@@ -121,7 +133,8 @@ This policy is used to encrypt native Kafka messages as they are published into 
 	  },
 	  "compressionConfiguration": {
 		"compressionHeader": "__GIO_KAFKA_MESSAGE_ENCRYPTION_POLICY_COMPRESSION_TYPE",
-		"compressionType": "GZIP"
+		"compressionType": "GZIP",
+		"compressionThreshold": "1024"
 	  },
 	  "algorithm": "AES256_GCM"
 	}
